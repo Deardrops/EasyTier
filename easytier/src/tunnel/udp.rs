@@ -427,7 +427,11 @@ impl UdpTunnelListenerData {
             Box::new(RingStream::new(ring_for_recv_udp)),
             Box::new(RingSink::new(ring_for_send_udp)),
             Some(TunnelInfo {
-                tunnel_type: "udp".to_owned(),
+                tunnel_type: if remote_addr.is_ipv4() {
+                    "udp4".to_owned()
+                } else {
+                    "udp6".to_owned()
+                },
                 local_addr: Some(self.local_url.clone().into()),
                 remote_addr: Some(
                     build_url_from_socket_addr(&remote_addr.to_string(), "udp").into(),
@@ -754,7 +758,11 @@ impl UdpTunnelConnector {
             Box::new(RingStream::new(ring_for_recv_udp)),
             Box::new(RingSink::new(ring_for_send_udp)),
             Some(TunnelInfo {
-                tunnel_type: "udp".to_owned(),
+                tunnel_type: if dst_addr.is_ipv4() {
+                    "udp4".to_owned()
+                } else {
+                    "udp6".to_owned()
+                },
                 local_addr: Some(
                     build_url_from_socket_addr(&socket.local_addr()?.to_string(), "udp").into(),
                 ),

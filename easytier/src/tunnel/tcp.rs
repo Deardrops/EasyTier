@@ -37,11 +37,16 @@ impl TcpTunnelListener {
             tracing::warn!(?e, "set_nodelay fail in accept");
         }
 
+        let peer_addr = stream.peer_addr()?;
         let info = TunnelInfo {
-            tunnel_type: "tcp".to_owned(),
+            tunnel_type: if peer_addr.is_ipv4() {
+                "tcp4".to_owned()
+            } else {
+                "tcp6".to_owned()
+            },
             local_addr: Some(self.local_url().into()),
             remote_addr: Some(
-                super::build_url_from_socket_addr(&stream.peer_addr()?.to_string(), "tcp").into(),
+                super::build_url_from_socket_addr(&peer_addr.to_string(), "tcp").into(),
             ),
         };
 
@@ -115,8 +120,13 @@ fn get_tunnel_with_tcp_stream(
         tracing::warn!(?e, "set_nodelay fail in get_tunnel_with_tcp_stream");
     }
 
+    let peer_addr = stream.peer_addr()?;
     let info = TunnelInfo {
-        tunnel_type: "tcp".to_owned(),
+        tunnel_type: if peer_addr.is_ipv4() {
+            "tcp4".to_owned()
+        } else {
+            "tcp6".to_owned()
+        },
         local_addr: Some(
             super::build_url_from_socket_addr(&stream.local_addr()?.to_string(), "tcp").into(),
         ),
